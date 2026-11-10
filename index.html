@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>EuroNusa AR Culinary Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0f2744;
+      --primary-light: #1e3a5f;
+      --accent: #e53e3e;
+      --accent-dark: #c53030;
+      --secondary: #3182ce;
+      --success: #276749;
+      --bg: #f0f4f8;
+      --card: #ffffff;
+      --text: #1a202c;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 4px 20px rgba(15, 39, 68, 0.08);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(135deg, #0f2744 0%, #1e3a5f 50%, #2b6cb0 100%);
+      color: white;
+      padding: 1.1rem 1.25rem 1.3rem;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 4px 24px rgba(15,39,68,0.25);
+    }
+    .header-inner { max-width: 980px; margin: 0 auto; }
+    header h1 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    header h1 span { font-size: 1.5rem; }
+    header p {
+      font-size: 0.82rem;
+      opacity: 0.88;
+      margin-top: 3px;
+      font-weight: 400;
+    }
+    .tag-row {
+      display: flex;
+      gap: 0.4rem;
+      margin-top: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .tag {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(6px);
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .container { max-width: 980px; margin: 0 auto; padding: 1.1rem 1rem 2.5rem; }
+    .screen { display: none; animation: fadeIn 0.25s ease; }
+    .screen.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0.3rem 0 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.22s, box-shadow 0.22s;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 32px rgba(15,39,68,0.14);
+    }
+    .card:active { transform: scale(0.98); }
+    .card-img-wrap {
+      position: relative;
+      height: 130px;
+      overflow: hidden;
+    }
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s;
+    }
+    .card:hover img { transform: scale(1.06); }
+    .card-flag {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.55);
+      color: white;
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: 6px;
+      backdrop-filter: blur(4px);
+    }
+    .card-body { padding: 0.75rem 0.8rem 0.9rem; }
+    .card-body h3 {
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+      line-height: 1.3;
+    }
+    .card-body .sub {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .badge-local {
+      display: inline-block;
+      background: linear-gradient(135deg, #c53030, #e53e3e);
+      color: white;
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+      margin-top: 5px;
+      letter-spacing: 0.02em;
+    }
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 0.72rem 1.05rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-light); }
+    .btn-accent { background: var(--accent); color: white; }
+    .btn-accent:hover { background: var(--accent-dark); }
+    .btn-outline {
+      background: white;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+    }
+    .btn-outline:hover { background: #f0f7ff; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--primary);
+      font-weight: 600;
+      padding: 0.4rem 0;
+    }
+    .detail-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin: 1.1rem 0 0.5rem;
+    }
+    .detail-hero {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow);
+    }
+    .detail-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -0.02em;
+    }
+    .detail-meta {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin: 0.25rem 0 0.7rem;
+      font-weight: 500;
+    }
+    .detail-desc {
+      font-size: 0.92rem;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .ar-box {
+      background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
+      border-radius: var(--radius);
+      overflow: hidden;
+      min-height: 380px;
+      position: relative;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    }
+    .ar-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      color: white;
+    }
+    .ar-icon { font-size: 3.5rem; margin-bottom: 0.6rem; }
+    .ar-dish { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .ar-hint {
+      font-size: 0.82rem;
+      opacity: 0.75;
+      max-width: 280px;
+      line-height: 1.5;
+    }
+    .ar-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      justify-content: center;
+      padding: 0.85rem;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(8px);
+    }
+    .ar-controls .btn {
+      font-size: 0.78rem;
+      padding: 0.5rem 0.75rem;
+    }
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+      margin: 0.8rem 0;
+    }
+    .cmp-card {
+      background: white;
+      border-radius: 14px;
+      padding: 0.85rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .cmp-card .label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.5rem;
+    }
+    .cmp-card .label.eu { color: #3182ce; }
+    .cmp-card .label.id { color: #c53030; }
+    .cmp-card img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 0.55rem;
+    }
+    .cmp-card h4 {
+      font-size: 0.88rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .diff-box {
+      background: white;
+      border-radius: 14px;
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      margin-top: 0.3rem;
+    }
+    .diff-box h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.45rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .diff-box p {
+      font-size: 0.88rem;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .ing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+      margin-top: 0.7rem;
+    }
+    .ing-item {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .ing-item strong {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--primary);
+      margin-bottom: 2px;
+    }
+    .ing-item span {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .chat-wrapper {
+      background: white;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      height: 420px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      background: #f8fafc;
+    }
+    .msg {
+      margin-bottom: 0.75rem;
+      max-width: 88%;
+      padding: 0.7rem 0.9rem;
+      border-radius: 14px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+    .msg.bot {
+      background: white;
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .msg.user {
+      background: linear-gradient(135deg, var(--primary), #2b6cb0);
+      color: white;
+      margin-left: auto;
+      border-bottom-right-radius: 4px;
+    }
+    .quick-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0.55rem 0.9rem 0.2rem;
+      background: white;
+      border-top: 1px solid var(--border);
+    }
+    .quick-row button {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.35rem 0.7rem;
+      border-radius: 20px;
+      border: 1.5px solid #cbd5e0;
+      background: white;
+      color: var(--primary);
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .quick-row button:hover {
+      border-color: var(--secondary);
+      background: #ebf8ff;
+    }
+    .chat-input-row {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.7rem 0.9rem;
+      background: white;
+      border-top: 1px solid var(--border);
+    }
+    .chat-input-row input {
+      flex: 1;
+      border: 1.5px solid #cbd5e0;
+      border-radius: 10px;
+      padding: 0.65rem 0.9rem;
+      font-size: 0.88rem;
+      outline: none;
+      font-family: inherit;
+    }
+    .chat-input-row input:focus {
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 3px rgba(49,130,206,0.15);
+    }
+    .info-banner {
+      background: linear-gradient(90deg, #ebf8ff, #e6fffa);
+      border: 1px solid #bee3f8;
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      font-size: 0.82rem;
+      color: #2c5282;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+    footer {
+      text-align: center;
+      padding: 1.8rem 1rem 2rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    footer strong { color: var(--primary); }
+    @media (max-width: 520px) {
+      .compare-grid { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+      .detail-hero { height: 200px; }
+      .ing-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1><span>🍽️</span> EuroNusa AR Culinary Lab</h1>
+      <p>Media Pembelajaran Interaktif Makanan Eropa berbasis AR + Generative AI</p>
+      <div class="tag-row">
+        <span class="tag">WebAR</span>
+        <span class="tag">Generative AI</span>
+        <span class="tag">Kearifan Lokal</span>
+        <span class="tag">Makanan Eropa</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="screen-home" class="screen active">
+      <div class="info-banner">
+        <strong>Cara pakai:</strong> Pilih hidangan → buka detail → coba mode AR, Bandingkan dengan Indonesia, Ingredient Explosion, atau Tanya AI Tutor.
+      </div>
+      <div class="section-title">🇪🇺 Pilih Hidangan Eropa</div>
+      <div class="grid" id="gallery"></div>
+    </div>
+
+    <div id="screen-detail" class="screen">
+      <button class="btn btn-ghost" onclick="showScreen('home')">← Kembali ke Gallery</button>
+      <img id="detail-img" class="detail-hero" src="" alt="" />
+      <div class="detail-title" id="detail-title"></div>
+      <div class="detail-meta" id="detail-country"></div>
+      <p class="detail-desc" id="detail-desc"></p>
+      <div class="detail-actions">
+        <button class="btn btn-primary" onclick="openAR()">📷 Tampilkan di AR</button>
+        <button class="btn btn-accent" onclick="openCompare()">🇮🇩 Bandingkan Indonesia</button>
+        <button class="btn btn-outline" onclick="openChat()">🤖 Tanya AI Tutor</button>
+        <button class="btn btn-success" onclick="openIngredients()">🧩 Pecah Bahan</button>
+      </div>
+    </div>
+
+    <div id="screen-ar" class="screen">
+      <button class="btn btn-ghost" onclick="showScreen('detail')">← Kembali</button>
+      <div class="section-title">Mode AR View</div>
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.7rem;">
+        Simulasi pengalaman Augmented Reality. Di perangkat nyata, model 3D dapat ditampilkan di atas meja melalui kamera.
+      </p>
+      <div class="ar-box">
+        <div class="ar-content">
+          <div class="ar-icon">🥘</div>
+          <div class="ar-dish" id="ar-dish-name"></div>
+          <div class="ar-hint">
+            Arahkan kamera ke permukaan datar.<br/>
+            Model 3D dapat diputar & diperbesar dengan gesture.<br/><br/>
+            <em>(Prototipe interaktif – siap dikembangkan dengan model .glb asli)</em>
+          </div>
+        </div>
+        <div class="ar-controls">
+          <button class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,0.5);" onclick="openIngredients()">🧩 Pecah Bahan</button>
+          <button class="btn btn-accent" onclick="openCompare()">🇮🇩 Bandingkan</button>
+          <button class="btn btn-primary" onclick="openChat()">🤖 Tanya AI</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="screen-compare" class="screen">
+      <button class="btn btn-ghost" onclick="showScreen('detail')">← Kembali</button>
+      <div class="section-title">Mode Perbandingan Euro–Nusa</div>
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">
+        Fitur inti integrasi kearifan lokal: melihat pengaruh & adaptasi kuliner Eropa di Indonesia.
+      </p>
+      <div class="compare-grid">
+        <div class="cmp-card">
+          <div class="label eu">🇪🇺 Eropa</div>
+          <img id="cmp-eu-img" src="" alt="" />
+          <h4 id="cmp-eu-name"></h4>
+        </div>
+        <div class="cmp-card">
+          <div class="label id">🇮🇩 Indonesia</div>
+          <img id="cmp-id-img" src="" alt="" />
+          <h4 id="cmp-id-name"></h4>
+        </div>
+      </div>
+      <div class="diff-box">
+        <h4>🔍 Perbedaan & Akulturasi</h4>
+        <p id="cmp-diff-text"></p>
+      </div>
+      <div style="margin-top:1rem;">
+        <button class="btn btn-primary" onclick="openChat()">🤖 Tanya AI tentang perbedaan ini</button>
+      </div>
+    </div>
+
+    <div id="screen-ingredients" class="screen">
+      <button class="btn btn-ghost" onclick="showScreen('detail')">← Kembali</button>
+      <div class="section-title">Ingredient Explosion</div>
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.3rem;" id="ing-dish-name"></p>
+      <div class="ing-grid" id="ing-list"></div>
+    </div>
+
+    <div id="screen-chat" class="screen">
+      <button class="btn btn-ghost" onclick="showScreen('detail')">← Kembali</button>
+      <div class="section-title">🤖 GenAI Culinary Tutor</div>
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.7rem;">
+        Context-aware: AI mengetahui hidangan yang sedang Anda pelajari.
+      </p>
+      <div class="chat-wrapper">
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="quick-row">
+          <button onclick="askQuick('sejarah')">📜 Sejarah</button>
+          <button onclick="askQuick('teknik')">👨‍🍳 Teknik</button>
+          <button onclick="askQuick('banding')">🇮🇩 Bandingkan</button>
+          <button onclick="askQuick('kuis')">❓ Buat Kuis</button>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="Tanya apa saja tentang hidangan ini..." onkeydown="if(event.key==='Enter')sendChat()" />
+          <button class="btn btn-primary" onclick="sendChat()">Kirim</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <strong>EuroNusa AR Culinary Lab</strong><br/>
+    Prototipe Media Pembelajaran Interaktif • WebAR + Generative AI<br/>
+    Mata Kuliah Makanan Eropa • Integrasi Kearifan Lokal Nusantara
+  </footer>
+
+  <script>
+    const dishes = [
+      {
+        id: 'paella',
+        name: 'Paella Valenciana',
+        country: 'Spanyol 🇪🇸',
+        img: 'https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=700&q=80',
+        desc: 'Hidangan nasi khas Valencia yang dimasak dalam wajan lebar (paellera) dengan saffron, seafood atau daging, dan sayuran. Simbol kebersamaan kuliner Spanyol dan salah satu hidangan paling ikonik di Eropa Selatan.',
+        ingredients: [
+          { name: 'Beras Bomba', info: 'Beras pendek yang menyerap kaldu sangat baik' },
+          { name: 'Saffron', info: 'Memberi warna kuning khas & aroma mahal' },
+          { name: 'Seafood / Ayam', info: 'Protein utama (versi laut atau darat)' },
+          { name: 'Paprika', info: 'Memberi rasa asap & warna merah' },
+          { name: 'Buncis & Artichoke', info: 'Sayuran khas Valencia' },
+          { name: 'Kaldu', info: 'Dasar rasa yang kaya dan mendalam' }
+        ],
+        indo: {
+          name: 'Nasi Goreng Seafood / Nasi Kebuli',
+          img: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=700&q=80',
+          diff: 'Paella menekankan teknik “socarrat” (kerak nasi di dasar wajan) dan penggunaan saffron. Di Indonesia, kombinasi beras + seafood lebih sering muncul sebagai nasi goreng atau nasi kebuli yang kaya rempah tropis. Keduanya adalah hidangan beras komunal, namun profil rasa sangat berbeda: mediterania vs tropical spice.'
+        }
+      },
+      {
+        id: 'ratatouille',
+        name: 'Ratatouille',
+        country: 'Prancis 🇫🇷',
+        img: 'https://images.unsplash.com/photo-1572451479139-6a308211d2be?w=700&q=80',
+        desc: 'Hidangan sayuran Provence yang dimasak perlahan (terong, zucchini, paprika, tomat). Versi modern sering disusun rapi (confit byaldi) dan menjadi simbol kuliner Prancis Selatan yang menghargai bahan segar.',
+        ingredients: [
+          { name: 'Terong', info: 'Dasar tekstur lembut & menyerap rasa' },
+          { name: 'Zucchini', info: 'Kesegaran dan warna hijau' },
+          { name: 'Paprika', info: 'Manis alami & aroma' },
+          { name: 'Tomat', info: 'Saus alami dan keasaman' },
+          { name: 'Herbes de Provence', info: 'Thyme, rosemary, oregano khas' },
+          { name: 'Minyak Zaitun', info: 'Lemak sehat & medium memasak' }
+        ],
+        indo: {
+          name: 'Tumis Sayur / Capcay',
+          img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=700&q=80',
+          diff: 'Ratatouille mengandalkan slow cooking dan herba mediterania. Di Indonesia, teknik tumis cepat dengan bawang putih, cabai, dan kecap lebih umum. Filosofinya mirip (menghormati sayuran segar), tetapi intensitas rasa dan penggunaan cabai sangat berbeda.'
+        }
+      },
+      {
+        id: 'carbonara',
+        name: 'Pasta Carbonara',
+        country: 'Italia 🇮🇹',
+        img: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?w=700&q=80',
+        desc: 'Pasta Romawi klasik dengan telur, keju Pecorino Romano, guanciale, dan lada hitam. Versi autentik tidak menggunakan krim. Salah satu pasta paling terkenal di dunia.',
+        ingredients: [
+          { name: 'Spaghetti', info: 'Pasta panjang klasik' },
+          { name: 'Guanciale', info: 'Pipi babi yang diasinkan (bukan bacon)' },
+          { name: 'Telur', info: 'Membuat saus creamy tanpa krim' },
+          { name: 'Pecorino Romano', info: 'Keju domba asin khas Roma' },
+          { name: 'Lada Hitam', info: 'Aroma & rasa pedas ringan' }
+        ],
+        indo: {
+          name: 'Mi Goreng / Spaghetti Kecap',
+          img: 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=700&q=80',
+          diff: 'Carbonara mengandalkan emulsi telur + keju + lemak guanciale. Di Indonesia, pasta sering digoreng dengan kecap manis, bawang, dan cabai. Teknik “creaminess” digantikan oleh rasa manis-gurih khas lokal. Contoh bagus bagaimana teknik Eropa diadaptasi ke lidah Nusantara.'
+        }
+      },
+      {
+        id: 'schnitzel',
+        name: 'Wiener Schnitzel',
+        country: 'Austria 🇦🇹',
+        img: 'https://images.unsplash.com/photo-1604909052743-94e838986d24?w=700&q=80',
+        desc: 'Daging veal/sapi yang digiling tipis, dilapisi tepung-telur-breadcrumb, lalu digoreng hingga keemasan. Hidangan nasional Austria yang sangat berpengaruh di Eropa Tengah.',
+        ingredients: [
+          { name: 'Veal / Daging Sapi', info: 'Dipukul tipis merata' },
+          { name: 'Tepung', info: 'Lapisan pertama (dredging)' },
+          { name: 'Telur', info: 'Pengikat sebelum breadcrumb' },
+          { name: 'Breadcrumb', info: 'Memberi kerenyahan sempurna' },
+          { name: 'Mentega / Minyak', info: 'Medium menggoreng' },
+          { name: 'Lemon', info: 'Penyajian klasik Austria' }
+        ],
+        indo: {
+          name: 'Rolade / Galantin / Ayam Goreng Tepung',
+          img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=700&q=80',
+          diff: 'Teknik breaded & fried sangat mirip dengan rolade, galantin, atau ayam goreng tepung di Indonesia. Pengaruh Eropa sangat jelas pada teknik ini. Perbedaannya ada pada ketebalan daging, jenis breadcrumb, dan saus pendamping (lemon vs saus kacang/sambal).'
+        }
+      },
+      {
+        id: 'semur-origin',
+        name: 'Smoor (Asal Semur)',
+        country: 'Belanda 🇳🇱',
+        img: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=700&q=80',
+        desc: 'Teknik merebus daging secara perlahan (braising) dengan tomat, bawang, dan rempah. Hidangan ini menjadi asal-usul langsung dari Semur yang sangat populer di Indonesia.',
+        ingredients: [
+          { name: 'Daging Sapi', info: 'Dipotong dan direbus lama hingga empuk' },
+          { name: 'Bawang Bombay', info: 'Dasar rasa manis alami' },
+          { name: 'Tomat', info: 'Keasaman & body saus' },
+          { name: 'Cuka / Wine', info: 'Tenderizer alami & rasa' },
+          { name: 'Rempah Eropa', info: 'Pala, cengkeh, daun salam Eropa' }
+        ],
+        indo: {
+          name: 'Semur Daging / Semur Ayam',
+          img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=700&q=80',
+          diff: 'Smoor Belanda diadaptasi menjadi Semur dengan penambahan kecap manis, pala, cengkeh, dan bawang merah. Rasa berubah dari asam-gurih menjadi manis-gurih khas Indonesia. Ini adalah contoh akulturasi kuliner paling jelas dan kuat antara Eropa (Belanda) dan Nusantara.'
+        }
+      },
+      {
+        id: 'pastel',
+        name: 'Pastéis de Nata',
+        country: 'Portugal 🇵🇹',
+        img: 'https://images.unsplash.com/photo-1519677100203-a0e668c92439?w=700&q=80',
+        desc: 'Kue custard dalam kulit puff pastry yang dipanggang hingga atasnya belang-belang hitam. Warisan biara Portugis yang menjadi salah satu pastry paling terkenal di dunia.',
+        ingredients: [
+          { name: 'Puff Pastry', info: 'Kulit berlapis yang sangat renyah' },
+          { name: 'Susu & Krim', info: 'Dasar custard yang creamy' },
+          { name: 'Kuning Telur', info: 'Kekayaan rasa & warna kuning' },
+          { name: 'Gula', info: 'Kemanisan seimbang' },
+          { name: 'Kayu Manis', info: 'Aroma khas yang harum' }
+        ],
+        indo: {
+          name: 'Nastar / Kastengel / Pie Susu',
+          img: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=700&q=80',
+          diff: 'Teknik baking dan penggunaan telur + susu dari tradisi Portugis/Belanda sangat memengaruhi kue kering Indonesia (nastar, kastengel, lapis legit, pie susu). Pastéis de Nata adalah “nenek moyang” spiritual dari banyak kue manis bercita rasa Eropa yang kini menjadi bagian dari identitas kuliner Indonesia.'
+        }
+      }
+    ];
+
+    let currentDish = null;
+
+    function renderGallery() {
+      const gallery = document.getElementById('gallery');
+      gallery.innerHTML = dishes.map(d => `
+        <div class="card" onclick="openDetail('${d.id}')">
+          <div class="card-img-wrap">
+            <img src="${d.img}" alt="${d.name}" loading="lazy" />
+            <div class="card-flag">${d.country.split(' ')[1] || ''}</div>
+          </div>
+          <div class="card-body">
+            <h3>${d.name}</h3>
+            <div class="sub">${d.country}</div>
+            ${d.id === 'semur-origin' ? '<span class="badge-local">ASAL SEMUR</span>' : ''}
+            ${d.id === 'pastel' ? '<span class="badge-local">PENGARUH KUE</span>' : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function showScreen(name) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-' + name).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openDetail(id) {
+      currentDish = dishes.find(d => d.id === id);
+      if (!currentDish) return;
+      document.getElementById('detail-img').src = currentDish.img;
+      document.getElementById('detail-title').textContent = currentDish.name;
+      document.getElementById('detail-country').textContent = currentDish.country;
+      document.getElementById('detail-desc').textContent = currentDish.desc;
+      showScreen('detail');
+    }
+
+    function openAR() {
+      if (!currentDish) return;
+      document.getElementById('ar-dish-name').textContent = currentDish.name;
+      showScreen('ar');
+    }
+
+    function openCompare() {
+      if (!currentDish) return;
+      document.getElementById('cmp-eu-img').src = currentDish.img;
+      document.getElementById('cmp-eu-name').textContent = currentDish.name;
+      document.getElementById('cmp-id-img').src = currentDish.indo.img;
+      document.getElementById('cmp-id-name').textContent = currentDish.indo.name;
+      document.getElementById('cmp-diff-text').textContent = currentDish.indo.diff;
+      showScreen('compare');
+    }
+
+    function openIngredients() {
+      if (!currentDish) return;
+      document.getElementById('ing-dish-name').textContent = 'Bahan-bahan utama dari ' + currentDish.name;
+      document.getElementById('ing-list').innerHTML = currentDish.ingredients.map(ing => `
+        <div class="ing-item">
+          <strong>${ing.name}</strong>
+          <span>${ing.info}</span>
+        </div>
+      `).join('');
+      showScreen('ingredients');
+    }
+
+    const answers = {
+      sejarah: {
+        paella: 'Paella berasal dari Valencia, Spanyol. Awalnya makanan petani yang dimasak di sawah dengan bahan yang ada di sekitar. Nama “paella” diambil dari wajan lebar tempat memasaknya. Saffron menjadi bahan mahal yang memberi warna ikonik kuning.',
+        ratatouille: 'Ratatouille berasal dari Provence, Prancis Selatan. Awalnya hidangan petani sederhana yang memanfaatkan sayuran musim panas. Nama berasal dari kata “ratouiller” (mengaduk). Versi modern yang indah dipopulerkan oleh film Pixar “Ratatouille”.',
+        carbonara: 'Carbonara adalah pasta Romawi modern (abad ke-20). Ada teori bahwa hidangan ini muncul setelah Perang Dunia II ketika tentara Amerika membawa telur dan bacon. Versi autentik tidak memakai krim sama sekali.',
+        schnitzel: 'Wiener Schnitzel adalah hidangan nasional Austria. Teknik breaded-fried kemungkinan dipengaruhi oleh Cotoletta alla Milanese dari Italia Utara. Di Austria, harus menggunakan veal dan digoreng dalam mentega atau lemak.',
+        'semur-origin': 'Smoor adalah teknik braising Belanda. Ketika Belanda datang ke Nusantara, teknik ini bertemu dengan kecap manis, pala, dan cengkeh. Hasilnya adalah Semur yang kita kenal hari ini — contoh akulturasi kuliner yang sangat jelas dan kuat.',
+        pastel: 'Pastéis de Nata lahir di biara Jerónimos, Lisbon, pada abad ke-18. Para biarawan menggunakan kuning telur sisa (putih telur dipakai untuk menjernihkan anggur) menjadi custard tart. Hingga kini menjadi ikon Portugal.'
+      },
+      teknik: {
+        paella: 'Kunci Paella: gunakan beras bomba, jangan diaduk setelah kaldu dimasukkan (supaya terbentuk socarrat), dan pakai saffron asli. Dimasak dengan api sedang di wajan lebar.',
+        ratatouille: 'Ada dua aliran: dimasak semua campur (tradisional) atau setiap sayuran ditumis terpisah lalu digabung (lebih modern dan rapi). Versi confit byaldi disusun cantik dan dipanggang perlahan.',
+        carbonara: 'Teknik kunci: aduk pasta panas dengan campuran telur + keju di luar api agar tidak jadi orak-arik. Lemak guanciale + air pasta membentuk emulsi creamy yang sempurna.',
+        schnitzel: 'Daging harus dipukul tipis merata. Lapisan tepung → telur → breadcrumb harus merata. Goreng dalam minyak/mentega yang cukup banyak dengan api sedang agar tidak gosong sebelum matang.',
+        'semur-origin': 'Teknik braising: daging ditumis dulu (sear), lalu direbus perlahan dalam cairan (kaldu + tomat + rempah) dalam waktu lama sampai empuk. Di Indonesia ditambah kecap manis sebagai ciri khas.',
+        pastel: 'Custard harus kental tapi masih flowy. Panggang di suhu sangat tinggi (sekitar 250°C) agar atasnya belang-belang hitam (the “scorch”) yang jadi ciri khas Pastéis de Nata.'
+      }
+    };
+
+    function openChat() {
+      if (!currentDish) return;
+      const box = document.getElementById('chat-messages');
+      box.innerHTML = `
+        <div class="msg bot">
+          Halo! Saya <strong>AI Culinary Tutor</strong>. Saya sedang fokus pada <strong>${currentDish.name}</strong>.<br/><br/>
+          Silakan tanya apa saja: sejarah, teknik memasak, bahan, atau perbandingan dengan masakan Indonesia. Anda juga bisa memakai tombol cepat di bawah.
+        </div>
+      `;
+      showScreen('chat');
+    }
+
+    function askQuick(type) {
+      let question = '', answer = '';
+      if (type === 'sejarah') {
+        question = 'Ceritakan sejarah singkat hidangan ini';
+        answer = answers.sejarah[currentDish.id] || 'Hidangan ini memiliki sejarah panjang di kawasan asalnya.';
+      } else if (type === 'teknik') {
+        question = 'Bagaimana teknik memasak yang benar?';
+        answer = answers.teknik[currentDish.id] || 'Teknik memasak mengikuti prinsip dasar kuliner Eropa yang menekankan kontrol suhu dan timing.';
+      } else if (type === 'banding') {
+        question = 'Bandingkan dengan versi atau pengaruhnya di Indonesia';
+        answer = currentDish.indo.diff;
+      } else if (type === 'kuis') {
+        question = 'Buatkan kuis singkat tentang hidangan ini';
+        answer = 'Kuis Singkat tentang ' + currentDish.name + ':\\n\\n1. Apa bahan yang memberi warna kuning khas pada Paella?\\n2. Mengapa Carbonara autentik tidak menggunakan krim?\\n3. Teknik merebus perlahan yang menjadi asal Semur disebut apa dalam bahasa Belanda?\\n4. Sebutkan satu perbedaan utama antara Ratatouille dan tumis sayur Indonesia.\\n\\nSilakan jawab di chat ini, nanti saya beri feedback!';
+      }
+      addMsg(question, 'user');
+      setTimeout(() => addMsg(answer, 'bot'), 450);
+    }
+
+    function sendChat() {
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+      addMsg(text, 'user');
+      input.value = '';
+      setTimeout(() => {
+        let reply = '';
+        const lower = text.toLowerCase();
+        if (lower.includes('sejarah') || lower.includes('asal') || lower.includes('dari mana') || lower.includes('sejarahnya')) {
+          reply = answers.sejarah[currentDish.id] || 'Hidangan ini memiliki sejarah panjang di kawasan asalnya.';
+        } else if (lower.includes('teknik') || lower.includes('cara') || lower.includes('masak') || lower.includes('resep')) {
+          reply = answers.teknik[currentDish.id] || 'Teknik yang benar sangat menentukan hasil akhir hidangan.';
+        } else if (lower.includes('indonesia') || lower.includes('banding') || lower.includes('semur') || lower.includes('beda') || lower.includes('perbedaan') || lower.includes('pengaruh')) {
+          reply = currentDish.indo.diff;
+        } else if (lower.includes('bahan') || lower.includes('ingredient') || lower.includes('komposisi')) {
+          reply = 'Bahan utama ' + currentDish.name + ' meliputi: ' + currentDish.ingredients.map(i => i.name).join(', ') + '. Silakan buka menu “Pecah Bahan” untuk melihat detail fungsi masing-masing bahan.';
+        } else {
+          reply = 'Pertanyaan bagus tentang ' + currentDish.name + '. Saya bisa menjelaskan sejarah, teknik memasak, bahan-bahan, atau perbandingannya dengan masakan Indonesia. Coba tanya lebih spesifik atau gunakan tombol cepat di bawah ya!';
+        }
+        addMsg(reply, 'bot');
+      }, 550);
+    }
+
+    function addMsg(text, who) {
+      const box = document.getElementById('chat-messages');
+      const div = document.createElement('div');
+      div.className = 'msg ' + who;
+      div.innerHTML = text.replace(/\\n/g, '<br/>').replace(/\\n/g, '<br/>');
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    renderGallery();
+  </script>
+</body>
+</html>
